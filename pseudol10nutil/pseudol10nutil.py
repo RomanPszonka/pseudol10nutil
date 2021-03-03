@@ -41,6 +41,10 @@ class PseudoL10nUtil:
         """
         if not s:  # If the string is empty or None
             return u""
+        if s == "\\n":
+            return s
+        if s.strip(" ") == "":
+            return s
         if not isinstance(s, six.text_type):
             raise TypeError("String to pseudo-localize must be of type '{0}'.".format(six.text_type.__name__))
         # If no transforms are defined, return the string as-is.
@@ -48,6 +52,10 @@ class PseudoL10nUtil:
             return s
         fmt_spec = re.compile(
             r"""(
+            \\n$
+            |
+            <[^>]*>
+            |
             {.*?}  # https://docs.python.org/3/library/string.html#formatstrings
             |
             %(?:\(\w+?\))?.*?[acdeEfFgGiorsuxX%]  # https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting
@@ -95,6 +103,26 @@ class POFileUtil:
         else:
             self.l10nutil = l10nutil
 
+    def preprocess_string(self, msgid):
+        prefix = ""
+        suffix = ""
+        leading_trailing_double_quotes = re.compile(r'^"|"$')
+        msgid = leading_trailing_double_quotes.sub('', msgid)
+
+        # preserve \n at the end of the string
+        if msgid.endswith("\\n"):
+            msgid = msgid[:-2]
+            suffix = "\\n"
+
+        # preserve spaces at the start
+        while msgid.startswith(" "):
+            msgid = msgid[1:]
+            prefix += " "
+
+        msgstr = prefix + self.l10nutil.pseudolocalize(msgid) + suffix
+
+        return msgstr
+
     def pseudolocalizefile(self, input_filename, output_filename, input_encoding='UTF-8', output_encoding='UTF-8',
                            overwrite_existing=True):
         """
@@ -107,7 +135,8 @@ class POFileUtil:
         :param overwrite_existing: Boolean indicating if an existing output message catalog file should be overwritten.
                                    True by default. If False, an IOError will be raised.
         """
-        leading_trailing_double_quotes = re.compile(r'^"|"$')
+        cache = []
+        processing = False
         if not os.path.isfile(input_filename):
             raise IOError("Input message catalog not found: {0}".format(os.path.abspath(input_filename)))
         if os.path.isfile(output_filename) and not overwrite_existing:
@@ -115,10 +144,22 @@ class POFileUtil:
         with codecs.open(input_filename, mode="r", encoding=input_encoding) as in_fileobj:
             with codecs.open(output_filename, mode="w", encoding=output_encoding) as out_fileobj:
                 for current_line in in_fileobj:
-                    out_fileobj.write(current_line)
-                    if current_line.startswith("msgid"):
-                        msgid = current_line.split(None, 1)[1].strip()
-                        msgid = leading_trailing_double_quotes.sub('', msgid)
-                        msgstr = self.l10nutil.pseudolocalize(msgid)
-                        out_fileobj.write(u"msgstr \"{0}\"\n".format(msgstr))
-                        next(in_fileobj)
+                    if current_line.startswith("msgstr"):
+                        # write out the ouput from the cache
+                        for line in cache:
+                            out_fileobj.write(line)
+                        cache = []
+                        processing = False
+                    else:
+                        out_fileobj.write(current_line)
+                        if current_line.startswith("msgid"):
+                            # first line
+                            processing = True
+                            msgid = current_line.split(None, 1)[1].strip()
+                            msgstr = self.preprocess_string(msgid)
+                            cache.append(u"msgstr \"{0}\"\n".format(msgstr))
+                        elif processing:
+                            # follwing lines of multiline msgid
+                            msgid = current_line.strip()
+                            msgstr = self.preprocess_string(msgid)
+                            cache.append(u"\"{0}\"\n".format(msgstr))
