@@ -28,7 +28,7 @@ class PseudoL10nUtil:
                 transforms.transliterate_diacritic,
                 transforms.pad_length,
                 transforms.square_brackets
-                ]
+            ]
 
     def pseudolocalize(self, s):
         """
@@ -46,7 +46,8 @@ class PseudoL10nUtil:
         if s.strip(" ") == "":
             return s
         if not isinstance(s, six.text_type):
-            raise TypeError("String to pseudo-localize must be of type '{0}'.".format(six.text_type.__name__))
+            raise TypeError(
+                "String to pseudo-localize must be of type '{0}'.".format(six.text_type.__name__))
         # If no transforms are defined, return the string as-is.
         if not self.transforms:
             return s
@@ -103,7 +104,7 @@ class POFileUtil:
         else:
             self.l10nutil = l10nutil
 
-    def preprocess_string(self, msgid):
+    def process_string(self, msgid):
         prefix = ""
         suffix = ""
         leading_trailing_double_quotes = re.compile(r'^"|"$')
@@ -135,31 +136,34 @@ class POFileUtil:
         :param overwrite_existing: Boolean indicating if an existing output message catalog file should be overwritten.
                                    True by default. If False, an IOError will be raised.
         """
-        cache = []
-        processing = False
+        multiline_cache = []
+        processing_multiline = False
         if not os.path.isfile(input_filename):
-            raise IOError("Input message catalog not found: {0}".format(os.path.abspath(input_filename)))
+            raise IOError("Input message catalog not found: {0}".format(
+                os.path.abspath(input_filename)))
         if os.path.isfile(output_filename) and not overwrite_existing:
-            raise IOError("Error, output message catalog already exists: {0}".format(os.path.abspath(output_filename)))
+            raise IOError("Error, output message catalog already exists: {0}".format(
+                os.path.abspath(output_filename)))
         with codecs.open(input_filename, mode="r", encoding=input_encoding) as in_fileobj:
             with codecs.open(output_filename, mode="w", encoding=output_encoding) as out_fileobj:
                 for current_line in in_fileobj:
                     if current_line.startswith("msgstr"):
-                        # write out the ouput from the cache
-                        for line in cache:
+                        # save the cache content into the file
+                        for line in multiline_cache:
                             out_fileobj.write(line)
-                        cache = []
-                        processing = False
+                        multiline_cache = []
+                        processing_multiline = False
                     else:
                         out_fileobj.write(current_line)
                         if current_line.startswith("msgid"):
-                            # first line
-                            processing = True
+                            # first line of msgid
+                            processing_multiline = True
                             msgid = current_line.split(None, 1)[1].strip()
-                            msgstr = self.preprocess_string(msgid)
-                            cache.append(u"msgstr \"{0}\"\n".format(msgstr))
-                        elif processing:
-                            # follwing lines of multiline msgid
+                            msgstr = self.process_string(msgid)
+                            multiline_cache.append(
+                                u"msgstr \"{0}\"\n".format(msgstr))
+                        elif processing_multiline:
+                            # following lines of multiline msgid
                             msgid = current_line.strip()
-                            msgstr = self.preprocess_string(msgid)
-                            cache.append(u"\"{0}\"\n".format(msgstr))
+                            msgstr = self.process_string(msgid)
+                            multiline_cache.append(u"\"{0}\"\n".format(msgstr))
