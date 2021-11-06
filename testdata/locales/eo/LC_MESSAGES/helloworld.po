@@ -14,7 +14,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-
 #: helloworld.py:7
 msgid "What is your name?: "
 msgstr "⟦Ẃȟàť ıš ÿøüȓ ñàɱê?: ﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹⟧"
@@ -22,4 +21,3 @@ msgstr "⟦Ẃȟàť ıš ÿøüȓ ñàɱê?: ﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘�
 #: helloworld.py:11
 msgid "Hello {0}!"
 msgstr "⟦Ȟêĺĺø {0}!﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹⟧"
-
