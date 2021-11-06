@@ -253,7 +253,7 @@ def transliterate_fullwidth(s, fmt_spec):
 
 # Need to keep track of which of the transforms perform transliteration so that when we do format-string handling,
 # we can do munging on the substrings that are not format-strings before we do any other munging.
-_transliterations = [transliterate_diacritic, transliterate_circled, transliterate_fullwidth]
+transliterations = [transliterate_diacritic, transliterate_circled, transliterate_fullwidth]
 
 
 def angle_brackets(s, fmt_spec):
@@ -351,7 +351,7 @@ def expand_vowels(s, fmt_spec):
     :returns: Padded string.
     """
     vowels = ["aeiouAEIOU"]
-    for munge in _transliterations:
+    for munge in transliterations:
         vowels.append(munge(vowels[0], fmt_spec))
     vowels = "".join(vowels)
 
@@ -374,8 +374,8 @@ def expand_vowels(s, fmt_spec):
             new_substring = []
             for c in substrings[i]:
                 if c in vowels and total_vowels > 0:
-                    next_vowel_addition = math.floor(diff/total_vowels)
-                    new_substring.append(c * (next_vowel_addition+1))
+                    next_vowel_addition = math.floor(diff / total_vowels)
+                    new_substring.append(c * (next_vowel_addition + 1))
                     total_vowels -= 1
                     diff -= next_vowel_addition
                 else:
