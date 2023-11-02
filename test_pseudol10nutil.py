@@ -4,8 +4,7 @@ import filecmp
 import os.path
 import unittest
 
-from pseudol10nutil import POFileUtil, PseudoL10nUtil
-import pseudol10nutil.transforms
+from pseudol10nutil import POFileUtil, PseudoL10nUtil, transforms
 
 
 class TestPOFileUtil(unittest.TestCase):
@@ -55,7 +54,7 @@ class TestPseudoL10nUtil(unittest.TestCase):
 
     def test_transliterate_diacritic(self):
         expected = u"Ťȟê ʠüıċǩ ƀȓøẁñ ƒøẋ ǰüɱƥš øṽêȓ ťȟê ĺàźÿ đøğ"
-        self.util.transforms = [pseudol10nutil.transforms.transliterate_diacritic]
+        self.util.transforms = [transforms.transliterate_diacritic]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
         test_data_fmtspec = u"Source {0} returned 0 rows, source {1} returned 1 row."
         expected = u"Șøüȓċê {0} ȓêťüȓñêđ 0 ȓøẁš, šøüȓċê {1} ȓêťüȓñêđ 1 ȓøẁ."
@@ -69,7 +68,7 @@ class TestPseudoL10nUtil(unittest.TestCase):
 
     def test_transliterate_circled(self):
         expected = u"Ⓣⓗⓔ ⓠⓤⓘⓒⓚ ⓑⓡⓞⓦⓝ ⓕⓞⓧ ⓙⓤⓜⓟⓢ ⓞⓥⓔⓡ ⓣⓗⓔ ⓛⓐⓩⓨ ⓓⓞⓖ"
-        self.util.transforms = [pseudol10nutil.transforms.transliterate_circled]
+        self.util.transforms = [transforms.transliterate_circled]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
         test_data_fmtspec = u"Source {0} returned 0 rows, source {1} returned 1 row."
         expected = u"Ⓢⓞⓤⓡⓒⓔ {0} ⓡⓔⓣⓤⓡⓝⓔⓓ ⓪ ⓡⓞⓦⓢ, ⓢⓞⓤⓡⓒⓔ {1} ⓡⓔⓣⓤⓡⓝⓔⓓ ① ⓡⓞⓦ."
@@ -83,7 +82,7 @@ class TestPseudoL10nUtil(unittest.TestCase):
 
     def test_transliterate_fullwidth(self):
         expected = u"Ｔｈｅ ｑｕｉｃｋ ｂｒｏｗｎ ｆｏｘ ｊｕｍｐｓ ｏｖｅｒ ｔｈｅ ｌａｚｙ ｄｏｇ"
-        self.util.transforms = [pseudol10nutil.transforms.transliterate_fullwidth]
+        self.util.transforms = [transforms.transliterate_fullwidth]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
         test_data_fmtspec = u"Source {0} returned 0 rows, source {1} returned 1 row."
         expected = u"Ｓｏｕｒｃｅ {0} ｒｅｔｕｒｎｅｄ ０ ｒｏｗｓ, ｓｏｕｒｃｅ {1} ｒｅｔｕｒｎｅｄ １ ｒｏｗ."
@@ -97,57 +96,57 @@ class TestPseudoL10nUtil(unittest.TestCase):
 
     def test_angle_brackets(self):
         expected = u"《The quick brown fox jumps over the lazy dog》"
-        self.util.transforms = [pseudol10nutil.transforms.angle_brackets]
+        self.util.transforms = [transforms.angle_brackets]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
     def test_curly_brackets(self):
         expected = u"❴The quick brown fox jumps over the lazy dog❵"
-        self.util.transforms = [pseudol10nutil.transforms.curly_brackets]
+        self.util.transforms = [transforms.curly_brackets]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
     def test_square_brackets(self):
         expected = u"⟦The quick brown fox jumps over the lazy dog⟧"
-        self.util.transforms = [pseudol10nutil.transforms.square_brackets]
+        self.util.transforms = [transforms.square_brackets]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
     def test_simple_square_brackets(self):
         expected = u"[The quick brown fox jumps over the lazy dog]"
-        self.util.transforms = [pseudol10nutil.transforms.simple_square_brackets]
+        self.util.transforms = [transforms.simple_square_brackets]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
     def test_pad_length(self):
         expected = u"The quick brown fox jumps over the lazy dog﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎Ѝ"
-        self.util.transforms = [pseudol10nutil.transforms.pad_length]
+        self.util.transforms = [transforms.pad_length]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
     def test_expand_vowels_no_vowels(self):
         test_data = u"jmpng"
         expected = u"jmpnggggggggggg"
-        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.util.transforms = [transforms.expand_vowels]
         self.assertEqual(expected, self.util.pseudolocalize(test_data))
 
     def test_expand_vowels_one_vowel(self):
         test_data = u"Row"
         expected = u"Rooooooow"
-        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.util.transforms = [transforms.expand_vowels]
         self.assertEqual(expected, self.util.pseudolocalize(test_data))
 
     def test_expand_vowels_vowel_in_placeholder(self):
         test_data_printffmtspec = u"Source %(source0)s returned 0 rows, source %(source1)s returned 1 row."
         expected = u"Sooouuurceee %(source0)s reeetuuurneeed 0 rooows, sooouuurceee %(source1)s reeetuuurneeed 1 roooow."
-        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.util.transforms = [transforms.expand_vowels]
         self.assertEqual(expected, self.util.pseudolocalize(test_data_printffmtspec))
 
     def test_expand_vowels_transliterated_source(self):
         test_data_printffmtspec = u"Șøüȓċê %(source0)s ȓêťüȓñêđ 0 ȓøẁš, šøüȓċê %(source1)s ȓêťüȓñêđ 1 ȓøẁ."
         expected = u"Șøøøüüüȓċêêê %(source0)s ȓêêêťüüüȓñêêêđ 0 ȓøøøẁš, šøøøüüüȓċêêê %(source1)s ȓêêêťüüüȓñêêêđ 1 ȓøøøøẁ."
-        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.util.transforms = [transforms.expand_vowels]
         self.assertEqual(expected, self.util.pseudolocalize(test_data_printffmtspec))
 
     def test_expand_vowels_placeholder_only(self):
         test_data_printffmtspec = u"%(source0)s"
         expected = u"%(source0)s"
-        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.util.transforms = [transforms.expand_vowels]
         self.assertEqual(expected, self.util.pseudolocalize(test_data_printffmtspec))
 
 
