@@ -3,6 +3,7 @@
 import gettext
 from gettext import gettext as _
 
+
 def get_user_name():
     return input(_("What is your name?: "))
 

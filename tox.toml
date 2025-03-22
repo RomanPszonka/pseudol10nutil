@@ -1,0 +1,16 @@
+# tox (https://tox.readthedocs.io/) is a tool for running tests
+# in multiple virtualenvs. This configuration file will run the
+# test suite on all supported python versions. To use it, "pip install tox"
+# and then run "tox" from this directory.
+
+
+env_list = ["py39", "py310", "py311", "py312", "py313"]
+
+[env_run_base]
+description = "Run test under {base_python}"
+deps = ["pytest"]
+commands = [["pytest", "test_pseudol10nutil.py"]]
+
+[env.type]
+deps = ["mypy"]
+commands = [["mypy", "pseudol10nutil"]]

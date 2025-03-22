@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import itertools
 import math
-
-import six
 
 
 def __get_target_length(size):
@@ -17,11 +13,11 @@ def __get_target_length(size):
     :returns: The desired increased size.
     """
     target_lengths = {
-        six.moves.range(1, 11): 3,
-        six.moves.range(11, 21): 2,
-        six.moves.range(21, 31): 1.8,
-        six.moves.range(31, 51): 1.6,
-        six.moves.range(51, 71): 1.4,
+        range(1, 11): 3,
+        range(11, 21): 2,
+        range(21, 31): 1.8,
+        range(31, 51): 1.6,
+        range(51, 71): 1.4,
     }
     target_length = 0
     if size > 70:
@@ -253,7 +249,11 @@ def transliterate_fullwidth(s, fmt_spec):
 
 # Need to keep track of which of the transforms perform transliteration so that when we do format-string handling,
 # we can do munging on the substrings that are not format-strings before we do any other munging.
-transliterations = [transliterate_diacritic, transliterate_circled, transliterate_fullwidth]
+transliterations = [
+    transliterate_diacritic,
+    transliterate_circled,
+    transliterate_fullwidth,
+]
 
 
 def angle_brackets(s, fmt_spec):
@@ -265,7 +265,7 @@ def angle_brackets(s, fmt_spec):
     :param fmt_spec: Regex for placeholders.
     :returns: String surrounded with 《 》
     """
-    return u'《{0}》'.format(s)
+    return f"《{s}》"
 
 
 def curly_brackets(s, fmt_spec):
@@ -277,7 +277,7 @@ def curly_brackets(s, fmt_spec):
     :param fmt_spec: Regex for placeholders.
     :returns: String surrounded with ❴ ❵
     """
-    return u'❴{0}❵'.format(s)
+    return f"❴{s}❵"
 
 
 def square_brackets(s, fmt_spec):
@@ -289,7 +289,7 @@ def square_brackets(s, fmt_spec):
     :param fmt_spec: Regex for placeholders.
     :returns: String surrounded with ⟦ ⟧
     """
-    return u'⟦{0}⟧'.format(s)
+    return f"⟦{s}⟧"
 
 
 def simple_square_brackets(s, fmt_spec):
@@ -301,7 +301,7 @@ def simple_square_brackets(s, fmt_spec):
     :param fmt_spec: Regex for placeholders.
     :returns: String surrounded with [ ]
     """
-    return u'[{0}]'.format(s)
+    return f"[{s}]"
 
 
 def pad_length(s, fmt_spec):
@@ -316,23 +316,23 @@ def pad_length(s, fmt_spec):
     :returns: Padded string.
     """
     padding_chars = [
-        u'\ufe4e',  # ﹎: CENTRELINE LOW LINE
-        u'\u040d',  # Ѝ: CYRILLIC CAPITAL LETTER I WITH GRAVE
-        u'\u05d0',  # א: HEBREW LETTER ALEF
-        u'\u01c6',  # ǆ: LATIN SMALL LETTER DZ WITH CARON
-        u'\u1f8f',  # ᾏ: GREEK CAPITAL LETTER ALPHA WITH DASIA AND PERISPOMENI AND PROSGEGRAMMENI
-        u'\u2167',  # Ⅷ: ROMAN NUMERAL EIGHT
-        u'\u3234',  # ㈴: PARENTHESIZED IDEOGRAPH NAME
-        u'\u32f9',  # ㋹: CIRCLED KATAKANA RE
-        u'\ud4db',  # 퓛: HANGUL SYLLABLE PWILH
-        u'\ufe8f',  # ﺏ: ARABIC LETTER BEH ISOLATED FORM
-        u'\U0001D7D8',  # 𝟘: MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO
-        u'\U0001F6A6',  # 🚦: VERTICAL TRAFFIC LIGHT
-        ]
+        "\ufe4e",  # ﹎: CENTRELINE LOW LINE
+        "\u040d",  # Ѝ: CYRILLIC CAPITAL LETTER I WITH GRAVE
+        "\u05d0",  # א: HEBREW LETTER ALEF
+        "\u01c6",  # ǆ: LATIN SMALL LETTER DZ WITH CARON
+        "\u1f8f",  # ᾏ: GREEK CAPITAL LETTER ALPHA WITH DASIA AND PERISPOMENI AND PROSGEGRAMMENI
+        "\u2167",  # Ⅷ: ROMAN NUMERAL EIGHT
+        "\u3234",  # ㈴: PARENTHESIZED IDEOGRAPH NAME
+        "\u32f9",  # ㋹: CIRCLED KATAKANA RE
+        "\ud4db",  # 퓛: HANGUL SYLLABLE PWILH
+        "\ufe8f",  # ﺏ: ARABIC LETTER BEH ISOLATED FORM
+        "\U0001d7d8",  # 𝟘: MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO
+        "\U0001f6a6",  # 🚦: VERTICAL TRAFFIC LIGHT
+    ]
     padding_generator = itertools.cycle(padding_chars)
     target_length = __get_target_length(len(s))
     diff = target_length - len(s)
-    pad = u"".join([next(padding_generator) for _ in range(diff)])
+    pad = "".join([next(padding_generator) for _ in range(diff)])
     return s + pad
 
 

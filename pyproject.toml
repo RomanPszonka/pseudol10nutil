@@ -1,0 +1,33 @@
+[project]
+name = "pseudol10nutil"
+version = "0.2.0"
+authors = [
+    { name = "Leonides T. Saguisag Jr.", email = "leonidessaguisagjr@gmail.com" },
+    { name = "Roman Pszonka", email = "roman@pszonka.org" },
+]
+description = "Classes and functions for performing pseudo-localization on strings and PO files."
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Localization",
+    "Topic :: Text Processing",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["polib>=1.2.0", "requests>=2.32.3"]
+license = { file = "LICENSE" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["mypy>=1.15.0", "pyupgrade>=3.19.1", "types-polib>=1.2.0.20250114"]

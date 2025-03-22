@@ -2,7 +2,6 @@ import os.path
 import re
 
 import polib
-import six
 
 from . import transforms
 
@@ -44,12 +43,10 @@ class PseudoL10nUtil:
                   string is an empty string or None, an empty string is returned.
         """
         if not s:  # If the string is empty or None
-            return u""
-        if not isinstance(s, six.text_type):
+            return ""
+        if not isinstance(s, str):
             raise TypeError(
-                "String to pseudo-localize must be of type '{0}'.".format(
-                    six.text_type.__name__
-                )
+                "String to pseudo-localize must be of type '{}'.".format(str.__name__)
             )
         # If no transforms are defined, return the string as-is.
         if not self.transforms:
@@ -84,7 +81,7 @@ class PseudoL10nUtil:
                         continue
                 else:
                     continue
-            result = u"".join(substrings)
+            result = "".join(substrings)
             for munge in self.transforms:
                 if munge not in transforms.transliterations:
                     result = munge(result, fmt_spec)
@@ -125,14 +122,14 @@ class POFileUtil:
         """
 
         if not os.path.isfile(input_filename):
-            raise IOError(
-                "Input message catalog not found: {0}".format(
+            raise OSError(
+                "Input message catalog not found: {}".format(
                     os.path.abspath(input_filename)
                 )
             )
         if os.path.isfile(output_filename) and not overwrite_existing:
-            raise IOError(
-                "Error, output message catalog already exists: {0}".format(
+            raise OSError(
+                "Error, output message catalog already exists: {}".format(
                     os.path.abspath(output_filename)
                 )
             )
