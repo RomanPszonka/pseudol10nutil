@@ -1,7 +1,9 @@
 # `pseudol10nutil`
 
-Python module for performing pseudo-localization on strings. Tested
-against Python 2, Python3, PyPy and PyPy3.
+[![CI](https://github.com/RomanPszonka/pseudol10nutil/actions/workflows/python-tests.yml/badge.svg)](https://github.com/RomanPszonka/pseudol10nutil/actions/workflows/python-tests.yml)
+
+Python module for performing pseudo-localization on strings and gettext
+PO files. Requires Python 3.12 or later.
 
 ## Installation
 
@@ -11,11 +13,16 @@ The module is available on
 
 `pip install pseudol10nutil`
 
+or via [uv](https://docs.astral.sh/uv/):
+
+`uv add pseudol10nutil`
+
 ## Dependencies
 
 This package has the following external dependencies:
 
-- [six](https://pythonhosted.org/six/) - for Python 2 to 3 compatibility
+- [polib](https://polib.readthedocs.io/) - for manipulating gettext PO
+  and MO message catalogs
 
 ## `PseudoL10nUtil` class
 
@@ -72,16 +79,18 @@ supported. For example:
     Input [3]: Source %s returned %d rows.
     Output [3]: ⟦Șøüȓċê %s ȓêťüȓñêđ %d ȓøẁš.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ⟧
 
+The regex used to detect placeholders can be overridden by passing a
+compiled regex (with a single capture group) as the `placeholder_regex`
+parameter of `PseudoL10nUtil`.
+
 ### Example usage
 
-Python 3 example:
-
     >>> from pseudol10nutil import PseudoL10nUtil
+    >>> import pseudol10nutil.transforms
     >>> util = PseudoL10nUtil()
-    >>> s = u"The quick brown fox jumps over the lazy dog."
+    >>> s = "The quick brown fox jumps over the lazy dog."
     >>> util.pseudolocalize(s)
     '⟦Ťȟê ʠüıċǩ ƀȓøẁñ ƒøẋ ǰüɱƥš øṽêȓ ťȟê ĺàźÿ đøğ.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎Ѝא⟧'
-    >>> import pseudolocalize.transforms
     >>> util.transforms = [pseudol10nutil.transforms.transliterate_fullwidth, pseudol10nutil.transforms.curly_brackets]
     >>> util.pseudolocalize(s)
     '❴Ｔｈｅ ｑｕｉｃｋ ｂｒｏｗｎ ｆｏｘ ｊｕｍｐｓ ｏｖｅｒ ｔｈｅ ｌａｚｙ ｄｏｇ.❵'
@@ -120,7 +129,9 @@ The REST endpoint could be accessed as follows:
 
 Class for performing pseudo-localization on .po (Portable Object)
 message catalogs. Currently the class has a single method,
-`pseudolocalizefile(input_file, output_file, input_encoding='UTF-8', output_encoding='UTF-8', overwrite_existing=True)`.
+`pseudolocalizefile(input_filename, output_filename, overwrite_existing=True)`.
+In addition to the output PO file, the compiled MO file is written next
+to it.
 
 The default transforms will be applied to the strings in the input file.
 To override this behavior, create an instance of the `PseudoL10nUtil`
@@ -129,53 +140,68 @@ prior to calling the `pseudolocalizefile()` method.
 
 ### Example usage
 
-Using pypy3:
-
-    >>>> from pseudol10nutil import POFileUtil
-    >>>> pofileutil = POFileUtil()
-    >>>> input_file = "./testdata/locales/helloworld.pot"
-    >>>> output_file = "./testdata/locales/eo/LC_MESSAGES/helloworld_pseudo.po"
-    >>>> pofileutil.pseudolocalizefile(input_file, output_file)
-    >>>> with open(input_file, mode="r") as fileobj:
-    ....     for line in fileobj:
-    ....         if line.startswith("msgstr"):
-    ....             print(line)
-    ....
+    >>> from pseudol10nutil import POFileUtil
+    >>> pofileutil = POFileUtil()
+    >>> input_file = "./testdata/locales/helloworld.pot"
+    >>> output_file = "./testdata/locales/eo/LC_MESSAGES/helloworld_pseudo.po"
+    >>> pofileutil.pseudolocalizefile(input_file, output_file)
+    >>> with open(input_file, mode="r") as fileobj:
+    ...     for line in fileobj:
+    ...         if line.startswith("msgstr"):
+    ...             print(line)
+    ...
     msgstr ""
 
     msgstr ""
 
     msgstr ""
 
-    >>>> with open(output_file, mode="r") as fileobj:
-    ....     for line in fileobj:
-    ....         if line.startswith("msgstr"):
-    ....             print(line)
-    ....
+    >>> with open(output_file, mode="r") as fileobj:
+    ...     for line in fileobj:
+    ...         if line.startswith("msgstr"):
+    ...             print(line)
+    ...
     msgstr ""
 
     msgstr "⟦Ẃȟàť ıš ÿøüȓ ñàɱê?: ﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹⟧"
 
     msgstr "⟦Ȟêĺĺø {0}!﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹⟧"
 
-    >>>> from pseudol10nutil import PseudoL10nUtil
-    >>>> util = PseudoL10nUtil()
-    >>>> import pseudol10nutil.transforms
-    >>>> util.transforms = [pseudol10nutil.transforms.transliterate_circled, pseudol10nutil.transforms.pad_length]
-    >>>> pofileutil.l10nutil = util
-    >>>> pofileutil.pseudolocalizefile(input_file, output_file)
-    >>>> with open(output_file, mode="r") as fileobj:
-    ....     for line in fileobj:
-    ....         if line.startswith("msgstr"):
-    ....             print(line)
-    ....
+    >>> from pseudol10nutil import PseudoL10nUtil
+    >>> import pseudol10nutil.transforms
+    >>> util = PseudoL10nUtil()
+    >>> util.transforms = [pseudol10nutil.transforms.transliterate_circled, pseudol10nutil.transforms.pad_length]
+    >>> pofileutil.l10nutil = util
+    >>> pofileutil.pseudolocalizefile(input_file, output_file)
+    >>> with open(output_file, mode="r") as fileobj:
+    ...     for line in fileobj:
+    ...         if line.startswith("msgstr"):
+    ...             print(line)
+    ...
     msgstr ""
 
     msgstr "Ⓦⓗⓐⓣ ⓘⓢ ⓨⓞⓤⓡ ⓝⓐⓜⓔ?: ﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹"
 
     msgstr "Ⓗⓔⓛⓛⓞ {0}!﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹"
 
-    >>>>
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency
+management and [hatchling](https://hatch.pypa.io/) as the build backend.
+
+    # create a virtualenv and install the package plus dev dependencies
+    uv sync
+
+    # run the test suite
+    uv run pytest
+
+    # run the linter, formatter and type checker
+    uv run ruff check .
+    uv run ruff format --check .
+    uv run mypy
+
+    # run the full matrix (tests on all supported interpreters, lint, type)
+    uvx tox
 
 ## License
 
