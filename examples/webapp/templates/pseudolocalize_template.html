@@ -48,5 +48,13 @@
     <br />
     <textarea id="pseudolocalize_output" name="pseudolocalize_output" readonly>{{ pseudolocalized_text_output }}</textarea>
   </form>
+  <form class="centered" id="pseudolocalize_po_form" method="post" action="/pseudol10nutil/po_upload" enctype="multipart/form-data">
+    <h2 class="centered">Pseudolocalize PO File</h2>
+    <label for="po_file_input">PO file to pseudo-localize:</label>
+    <br />
+    <input type="file" id="po_file_input" name="po_file" accept=".po" />
+    <br />
+    <input type="submit" name="do_pseudolocalize_po" id="do_pseudolocalize_po" value="Pseudolocalize PO File"/>
+  </form>
 </body>
 </html>
