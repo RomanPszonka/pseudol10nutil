@@ -8,8 +8,8 @@ from pseudol10nutil import PseudoL10nUtil
 app = Flask(__name__)
 appname = "pseudol10nutil"
 api_version = "v1.0"
-api_base_url = "/{0}/api/{1}/".format(appname, api_version)
-ui_base_url = "/{0}/".format(appname)
+api_base_url = f"/{appname}/api/{api_version}/"
+ui_base_url = f"/{appname}/"
 util = PseudoL10nUtil()
 
 
@@ -56,7 +56,7 @@ def do_pseudo_ui():
         input_text = request.form.get("pseudolocalize_input")
         substitute = request.form.get("substitution_type")
         brackets = request.form.get("add_brackets")
-        pad_length = True if "pad_length" in request.form else False
+        pad_length = "pad_length" in request.form
 
         transforms = []
         form_options = {}  # Preserve options on post back
